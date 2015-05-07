@@ -5,7 +5,7 @@ if test "$PHP_DIFFUTILS" != "no"; then
 
   SEARCH_PATH="/usr/local /usr"
   SEARCH_FOR="src/diff.h"
-  SEARCH_LIB="libdiff"
+  SEARCH_LIB="libdiffutils"
 
   dnl search leveldb
   AC_MSG_CHECKING([for diffutils location])
@@ -37,12 +37,12 @@ if test "$PHP_DIFFUTILS" != "no"; then
   PHP_ADD_INCLUDE($DIFFUTILS_INCLUDE_DIR/src)
 
   # --with-diffutils -> check for lib and symbol presence
-  LIBNAME=diff
+  LIBNAME=diffutils
   PHP_ADD_LIBRARY_WITH_PATH($LIBNAME, $DIFFUTILS_LIB_DIR, DIFFUTILS_SHARED_LIBADD)
 
   PHP_SUBST(DIFFUTILS_SHARED_LIBADD)
   AM_ENABLE_STATIC()
 
   AC_DEFINE(HAVE_DIFFUTILS, 1, [Whether you have diffutils])
-  PHP_NEW_EXTENSION(diffutils, diffutils.c $diff_c_sources, $ext_shared,, $PHP_DIFFUTILS_CFLAGS)
+  PHP_NEW_EXTENSION(diffutils, diffutils.c aux.c $diff_c_sources, $ext_shared,, $PHP_DIFFUTILS_CFLAGS)
 fi

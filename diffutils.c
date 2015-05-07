@@ -18,6 +18,8 @@
 #include "php.h"
 #include "php_diffutils.h"
 
+PHPAPI char *php_trim(char *c, int len, char *what, int what_len, zval *return_value, int mode TSRMLS_DC);
+
 static zend_function_entry diffutils_functions[] = {
     PHP_FE(gnudiff, NULL)
     {NULL, NULL, NULL}
@@ -49,31 +51,34 @@ PHP_FUNCTION(gnudiff)
     zval*** args;
     int argc, i, len;
     char *argv[11];
-	char *tmp = NULL;
+    char *tmp = NULL;
 
     /* simple check. no more than 10 args */
     if (ZEND_NUM_ARGS() > 10) {
-        WRONG_PARAM_COUNT;
+	WRONG_PARAM_COUNT;
     }
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "*", &args, &argc) == FAILURE) {
-        RETURN_NULL();
+	RETURN_NULL();
     }
 
     argv[0] = "diff";
     for (i = 0; i < ZEND_NUM_ARGS(); ++i) {
-        convert_to_string_ex(args[i]);
-        tmp = php_trim(Z_STRVAL_PP(args[i]), Z_STRLEN_PP(args[i]), NULL, 0, NULL, 3 TSRMLS_CC);
-        argv[i + 1] = tmp;
+	convert_to_string_ex(args[i]);
+	tmp = php_trim(Z_STRVAL_PP(args[i]), Z_STRLEN_PP(args[i]), NULL, 0, NULL, 3 TSRMLS_CC);
+	argv[i + 1] = tmp;
     }
 
-	len = i + 1;
+    len = i + 1;
     // call diff
     diffMain(len, argv);
 
-	// free
-	if (ZEND_NUM_ARGS() > 0)
-		efree(args);
+    // free
+    if (ZEND_NUM_ARGS() > 0)
+	efree(args);
+    // php_trim(s, s, NULL, NULL, 3) calls estrndup()
+    for (i = 0; i < ZEND_NUM_ARGS(); ++i)
+	efree(argv[i + 1]);
 }
 
 /* {{{ PHP_MINFO_FUNCTION
@@ -95,6 +100,6 @@ PHP_MINFO_FUNCTION(diffutils)
  * tab-width: 4
  * c-basic-offset: 4
  * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
+ * vim600: noet sw=4 sts=4 fdm=marker
+ * vim<600: noet sw=4 sts=4
  */
